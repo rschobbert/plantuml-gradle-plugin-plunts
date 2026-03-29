@@ -1,0 +1,19 @@
+@startuml Styled output
+!include default_style.puml
+!define MyPackageColor #ff0000
+!define MyControllerColor #00ff00
+!pragma useIntermediatePackages true
+!theme sketchy
+skinparam packageStyle rectangle
+hide empty members
+show stereotype
+package examples as io.gitlab.plunts.gradle.plantuml.examples #0000ff {}
+package app as io.gitlab.plunts.gradle.plantuml.examples.app MyPackageColor {}
+
+class "ExampleApplication" as io.gitlab.plunts.gradle.plantuml.examples.app.ExampleApplication MyControllerColor {
+  + {static}void main(String[])
+}
+note bottom of io
+Test
+end note
+@enduml

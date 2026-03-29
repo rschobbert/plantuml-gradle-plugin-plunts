@@ -1,0 +1,50 @@
+plugins {
+  id "io.gitlab.plunts.plantuml"
+}
+
+description = 'dto'
+
+configurations {
+  plantuml // special configuration for local rendering
+}
+
+dependencies {
+  plantuml 'net.sourceforge.plantuml:plantuml:1.2023.10' // dependency for local rendering
+  plantuml 'org.apache.xmlgraphics:fop:2.9' // only if you want to render PDF
+  plantuml 'org.apache.xmlgraphics:batik-all:1.17' // only if you want to render PDF
+  compileOnly 'org.projectlombok:lombok:1.18.36'
+  annotationProcessor 'org.projectlombok:lombok:1.18.36'
+}
+
+classDiagrams {
+  // You can control the source sets that are included in the diagram
+  sourceSets = ["main"]
+  diagram {
+    // Note how this exact configuration behaves differently depending on which project you put it
+    // This one only shows the classes actually defined here, while the parent shows also the ones of sibling projects
+    name "Visualise Package"
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples")
+    exclude classes().outsideOfProject()
+    writeTo project.layout.projectDirectory.file('diagrams/full_package.puml')
+  }
+  diagram {
+    name "Write To AsciiDoc"
+    include classes().withName("io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto")
+    include subclasses()
+    insertInto project.layout.projectDirectory.file('README.adoc')
+  }
+
+  // You can use a completly local renderer if you like (always overwrites plantumlServer)
+  renderClasspath project.configurations.plantuml
+  diagram {
+    // Note how this exact configuration behaves differently depending on which project you put it
+    // This one only shows the classes actually defined here, while the parent shows also the ones of sibling projects
+    name "Render locally"
+    include classes().withNameLike("*.TireDto")
+    renderTo project.layout.projectDirectory.file('diagrams/tire.eps')
+    renderTo file('diagrams/tire.pdf')
+    renderTo file('diagrams/tire.png')
+    renderTo file('diagrams/tire.svg')
+    renderTo file('diagrams/tire.tex')
+  }
+}

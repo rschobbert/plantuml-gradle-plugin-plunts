@@ -1,0 +1,18 @@
+@startuml Packages only
+!pragma useIntermediatePackages false
+
+package io.gitlab.plunts.gradle.plantuml.examples {
+  [app] as io.gitlab.plunts.gradle.plantuml.examples.app
+  [dto] as io.gitlab.plunts.gradle.plantuml.examples.dto
+}
+package io.gitlab.plunts.gradle.plantuml.examples.app {
+  [controller] as io.gitlab.plunts.gradle.plantuml.examples.app.controller
+  [entity] as io.gitlab.plunts.gradle.plantuml.examples.app.entity
+  [service] as io.gitlab.plunts.gradle.plantuml.examples.app.service
+}
+package io.gitlab.plunts.gradle.plantuml.examples.app.service {
+  [internal] as io.gitlab.plunts.gradle.plantuml.examples.app.service.internal
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.controller --> io.gitlab.plunts.gradle.plantuml.examples.app.service
+io.gitlab.plunts.gradle.plantuml.examples.app.service --> io.gitlab.plunts.gradle.plantuml.examples.app.service.internal
+@enduml

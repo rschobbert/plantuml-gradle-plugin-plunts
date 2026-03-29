@@ -1,0 +1,47 @@
+@startuml Visualise Class with dependencies
+!pragma useIntermediatePackages false
+
+abstract class "AbstractEntity" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity {
+  +UUID getId()
+  +Instant getInsDate()
+  +Instant getModDate()
+  +void setId(UUID)
+  +void setInsDate(Instant)
+  +void setModDate(Instant)
+}
+note top of io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+  This class is abstract
+end note
+class "Car" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car {
+  +int getMaxPassengers()
+  +List<ParkingSlot> getAllowedParkingSlots()
+  +void setMaxPassengers(int)
+  +void setAllowedParkingSlots(List<ParkingSlot>)
+}
+entity "Truck" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck {
+  +int getMaxLoad()
+  +void setMaxLoad(int)
+}
+entity "Vehicle" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle {
+  +String getPlateNo()
+  +boolean isRegistered()
+  +VehicleState getState()
+  +List<Tire> getTires()
+  +SteeringWheel getSteeringWheel()
+  +List<Passenger> getPassengers()
+  +List<Trip> getTrips()
+  +void setPlateNo(String)
+  +void setRegistered(boolean)
+  +void setState(VehicleState)
+  +void setTires(List<Tire>)
+  +void setSteeringWheel(SteeringWheel)
+  +void setPassengers(List<Passenger>)
+  +void setTrips(List<Trip>)
+}
+interface "Serializable" as java.io.Serializable {
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity .u.|> java.io.Serializable
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+@enduml

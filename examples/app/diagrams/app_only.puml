@@ -1,0 +1,8 @@
+@startuml Visualise Package Non-Recursive
+!pragma useIntermediatePackages false
+set separator none
+
+class "ExampleApplication" as io.gitlab.plunts.gradle.plantuml.examples.app.ExampleApplication {
+  + {static}void main(String[])
+}
+@enduml

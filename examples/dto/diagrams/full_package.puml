@@ -1,0 +1,45 @@
+@startuml Visualise Package
+!pragma useIntermediatePackages false
+
+abstract class "AbstractDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto {
+  +UUID getId()
+  +Instant getInsDate()
+  +Instant getModDate()
+  +void setId(UUID)
+  +void setInsDate(Instant)
+  +void setModDate(Instant)
+}
+class "CarDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.CarDto {
+  +int getMaxPassengers()
+  +void setMaxPassengers(int)
+}
+class "SteeringWheelDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto {
+}
+class "TireDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto {
+  +int getDiameter()
+  +VehicleDto getMountedTo()
+  +void setDiameter(int)
+  +void setMountedTo(VehicleDto)
+}
+class "TruckDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.TruckDto {
+  +int getMaxLoad()
+  +void setMaxLoad(int)
+}
+class "VehicleDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto {
+  +String getPlateNo()
+  +boolean isRegistered()
+  +List<TireDto> getTires()
+  +SteeringWheelDto getSteeringWheel()
+  +void setPlateNo(String)
+  +void setRegistered(boolean)
+  +void setTires(List<TireDto>)
+  +void setSteeringWheel(SteeringWheelDto)
+}
+io.gitlab.plunts.gradle.plantuml.examples.dto.CarDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto <--> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TruckDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto --> io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto
+@enduml

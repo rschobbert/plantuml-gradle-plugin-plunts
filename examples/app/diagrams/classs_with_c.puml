@@ -1,0 +1,14 @@
+@startuml Visualise Classes by Glob
+!pragma useIntermediatePackages false
+
+class "Car" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car {
+  +int getMaxPassengers()
+  +List<ParkingSlot> getAllowedParkingSlots()
+  +void setMaxPassengers(int)
+  +void setAllowedParkingSlots(List<ParkingSlot>)
+}
+class "CarDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.CarDto {
+  +int getMaxPassengers()
+  +void setMaxPassengers(int)
+}
+@enduml

@@ -1,0 +1,80 @@
+@startuml Advanced member filtering
+!pragma useIntermediatePackages false
+
+class "VehicleController" as io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController {
+  -VehicleService service
+  __
+  +List<VehicleDto> listVehicles(int, int)
+}
+abstract class "AbstractEntity" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity {
+  -UUID id
+  -Instant insDate
+  -Instant modDate
+}
+note top of io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+  This class is abstract
+end note
+class "Car" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car {
+  -int maxPassengers
+  -List<ParkingSlot> allowedParkingSlots
+}
+entity "ParkingSlot" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.ParkingSlot {
+  -UUID id
+  -List<Car> allowedCars
+  -Map<String, Object> foobar
+}
+entity "Passenger" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger {
+  -String name
+}
+class "SteeringWheel" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel {
+}
+entity "Tire" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire {
+  -int diameter
+  -Vehicle mountedTo
+}
+class "Trip" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Trip {
+  -Instant startTime
+  -Instant endTime
+}
+entity "Truck" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck {
+  -int maxLoad
+}
+entity "Vehicle" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle {
+  -String plateNo
+  -boolean registered
+  -VehicleState state
+  -List<Tire> tires
+  -SteeringWheel steeringWheel
+  -List<Passenger> passengers
+  -List<Trip> trips
+}
+enum "VehicleState" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.VehicleState {
+  NEW
+  IN_USE
+  BROKEN
+  SCRAPPED
+  ..
+  -String label
+}
+class "VehicleService" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService {
+  __
+  +List<Vehicle> getVehicles(int, int)
+  ~List<Vehicle> getVehicelsNoChecks(Integer, Integer)
+}
+class "GarageHelper" as io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper {
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController --> io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car "0..*" <--> "0..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.ParkingSlot
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire "2..100" <--o "0..1" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "1" *--> "0..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Trip
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "0..1" --> "1" io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle --> "1..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.VehicleState
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "0..1" o--> "1..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger
+io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService --> io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper
+@enduml

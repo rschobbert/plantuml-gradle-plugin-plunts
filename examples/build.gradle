@@ -1,0 +1,25 @@
+plugins {
+  id "io.gitlab.plunts.plantuml" version "${version}"
+}
+
+description = 'examples'
+
+classDiagrams {
+  defaults {
+    // let's exclude some things here and in all sub-projects
+    exclude classes().annotatedWith("lombok.Generated")
+    exclude fields().thatAreStatic()
+  }
+  diagram {
+    // Note how this exact configuration behaves differently depending on which project you put it
+    // This one actually contains all classes, while the others only show subsets
+    name "Visualise Package"
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples")
+    exclude classes().outsideOfProject()
+    writeTo file('diagrams/full_package.puml')
+  }
+}
+
+subprojects {
+  apply plugin: 'java'
+}

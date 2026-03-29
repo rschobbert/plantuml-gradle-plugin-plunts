@@ -1,0 +1,14 @@
+@startuml Visualise Class with references
+!pragma useIntermediatePackages false
+
+class "VehicleController" as io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController {
+  +List<VehicleDto> listVehicles(int, int)
+}
+class "VehicleService" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService {
+  +List<Vehicle> getVehicles(int, int)
+}
+class "GarageHelper" as io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper {
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController --> io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService
+io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService --> io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper
+@enduml

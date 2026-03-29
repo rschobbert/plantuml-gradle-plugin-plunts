@@ -1,0 +1,149 @@
+@startuml Visualise Package
+!pragma useIntermediatePackages false
+
+class "ExampleApplication" as io.gitlab.plunts.gradle.plantuml.examples.app.ExampleApplication {
+  + {static}void main(String[])
+}
+class "VehicleController" as io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController {
+  +List<VehicleDto> listVehicles(int, int)
+}
+abstract class "AbstractEntity" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity {
+  +UUID getId()
+  +Instant getInsDate()
+  +Instant getModDate()
+  +void setId(UUID)
+  +void setInsDate(Instant)
+  +void setModDate(Instant)
+}
+class "Car" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car {
+  +int getMaxPassengers()
+  +List<ParkingSlot> getAllowedParkingSlots()
+  +void setMaxPassengers(int)
+  +void setAllowedParkingSlots(List<ParkingSlot>)
+}
+entity "ParkingSlot" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.ParkingSlot {
+  +UUID getId()
+  +List<Car> getAllowedCars()
+  +Map<String, Object> getFoobar()
+  +void setId(UUID)
+  +void setAllowedCars(List<Car>)
+  +void setFoobar(Map<String, Object>)
+}
+entity "Passenger" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger {
+  +String getName()
+  +void setName(String)
+}
+class "SteeringWheel" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel {
+}
+annotation "TestAnnotation" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.TestAnnotation {
+  + {abstract}String value()
+}
+entity "Tire" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire {
+  +int getDiameter()
+  +Vehicle getMountedTo()
+  +void setDiameter(int)
+  +void setMountedTo(Vehicle)
+}
+class "Trip" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Trip {
+  + {static}TripBuilder builder()
+  +Instant getStartTime()
+  +Instant getEndTime()
+  +void setStartTime(Instant)
+  +void setEndTime(Instant)
+}
+entity "Truck" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck {
+  +int getMaxLoad()
+  +void setMaxLoad(int)
+}
+entity "Vehicle" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle {
+  +String getPlateNo()
+  +boolean isRegistered()
+  +VehicleState getState()
+  +List<Tire> getTires()
+  +SteeringWheel getSteeringWheel()
+  +List<Passenger> getPassengers()
+  +List<Trip> getTrips()
+  +void setPlateNo(String)
+  +void setRegistered(boolean)
+  +void setState(VehicleState)
+  +void setTires(List<Tire>)
+  +void setSteeringWheel(SteeringWheel)
+  +void setPassengers(List<Passenger>)
+  +void setTrips(List<Trip>)
+}
+enum "VehicleState" as io.gitlab.plunts.gradle.plantuml.examples.app.entity.VehicleState {
+  NEW
+  IN_USE
+  BROKEN
+  SCRAPPED
+  __
+  +String getLabel()
+}
+class "VehicleService" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService {
+  +List<Vehicle> getVehicles(int, int)
+}
+class "VehicleService$QueryBuilder" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService$QueryBuilder<T extends Vehicle> {
+  +String build()
+  +T getEntity()
+  +void setEntity(T)
+  +String[] getFields()
+  +void setFields(String[])
+}
+class "GarageHelper" as io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper {
+}
+abstract class "AbstractDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto {
+  +UUID getId()
+  +Instant getInsDate()
+  +Instant getModDate()
+  +void setId(UUID)
+  +void setInsDate(Instant)
+  +void setModDate(Instant)
+}
+class "CarDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.CarDto {
+  +int getMaxPassengers()
+  +void setMaxPassengers(int)
+}
+class "SteeringWheelDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto {
+}
+class "TireDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto {
+  +int getDiameter()
+  +VehicleDto getMountedTo()
+  +void setDiameter(int)
+  +void setMountedTo(VehicleDto)
+}
+class "TruckDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.TruckDto {
+  +int getMaxLoad()
+  +void setMaxLoad(int)
+}
+class "VehicleDto" as io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto {
+  +String getPlateNo()
+  +boolean isRegistered()
+  +List<TireDto> getTires()
+  +SteeringWheelDto getSteeringWheel()
+  +void setPlateNo(String)
+  +void setRegistered(boolean)
+  +void setTires(List<TireDto>)
+  +void setSteeringWheel(SteeringWheelDto)
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController --> io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Car "0..*" <--> "0..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.ParkingSlot
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Tire "2..100" <--o "0..1" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Truck -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle -u-|> io.gitlab.plunts.gradle.plantuml.examples.app.entity.AbstractEntity
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "1" *--> "0..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Trip
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "0..1" --> "1" io.gitlab.plunts.gradle.plantuml.examples.app.entity.SteeringWheel
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle --> "1..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.VehicleState
+io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle "0..1" o--> "1..*" io.gitlab.plunts.gradle.plantuml.examples.app.entity.Passenger
+io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService --> io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper
+io.gitlab.plunts.gradle.plantuml.examples.dto.CarDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TireDto <--> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.TruckDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto -u-|> io.gitlab.plunts.gradle.plantuml.examples.dto.AbstractDto
+io.gitlab.plunts.gradle.plantuml.examples.dto.VehicleDto --> io.gitlab.plunts.gradle.plantuml.examples.dto.SteeringWheelDto
+@enduml

@@ -1,0 +1,175 @@
+plugins {
+  id "io.gitlab.plunts.plantuml"
+}
+
+description = 'app'
+
+dependencies {
+  compileOnly 'org.projectlombok:lombok:1.18.36'
+  annotationProcessor 'org.projectlombok:lombok:1.18.36'
+  implementation project(":examples:dto")
+  implementation 'org.hibernate:hibernate-annotations:3.5.6-Final'
+  implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+
+classDiagrams {
+  // this server is the default, so skip this if you don't mind your diagrams being sent there
+  plantumlServer = 'https://www.plantuml.com/plantuml'
+
+  defaults {
+    // This project will not inherit defaults from the parent project.
+    // Consequently, we have to define some excludes again here (if we want).
+    // You can use this directive in diagram blocks so they don't include this defaults.
+    dontInheritDefaults()
+    note("This class is abstract").topOf(classes().thatAreAbstract())
+    exclude classes().annotatedWith("lombok.Generated")
+    exclude methods().withName("builder")
+  }
+  classDiagram {
+    // Note how this exact configuration behaves differently depending on which project you put it
+    // This one only shows the classes actually defined here, while the parent shows also the ones of sibling projects
+    name "Visualise Package"
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples")
+    exclude classes().outsideOfProject()
+    writeTo file('diagrams/full_package.puml')
+  }
+  classDiagram {
+    name "Visualise Classes by Glob"
+    include classes().withNameLike("io.gitlab.plunts.gradle.plantuml.examples.*.C*").withoutParentClass()
+    writeTo file('diagrams/classs_with_c.puml')
+  }
+  classDiagram {
+    name "Visualise Package Non-Recursive"
+    style {
+      hidePackages()
+    }
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app").nonRecursive()
+    writeTo file('diagrams/app_only.puml')
+  }
+  classDiagram {
+    name "Visualise Class with dependencies"
+    include classes().withName("io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle").insideOfProject()
+    include superclasses().of("io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle")
+    include interfaces()
+    include subclasses().of("io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle")
+    writeTo file('diagrams/vehicle_context.puml')
+    renderTo file('diagrams/vehicle_context.png')
+    renderTo file('diagrams/vehicle_context.svg')
+  }
+  classDiagram {
+    name "Visualise Class with references"
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app.controller")
+    include referencedClasses().inPackage("io.gitlab.plunts.gradle.plantuml.examples.app")
+    writeTo file('diagrams/controllers_with_references.puml')
+  }
+  classDiagram {
+    name "Visualise all Entities"
+    include classes().annotatedWith("javax.persistence.Entity")
+    include referencedClasses()
+    include methods().thatArePublic() // this brings back "toString/equals/hashCode"
+    writeTo file('diagrams/entities.puml')
+  }
+  classDiagram {
+    name "Visualise private members"
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app.controller")
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app.service")
+    include fields()
+    include methods()
+    note("This is an important field").leftOf(fields().withName("service"))
+    note("This is an important method").rightOf(methods().withName("buildQuery"))
+    writeTo file('diagrams/private_members.puml')
+  }
+  classDiagram {
+    name "Advanced member filtering"
+    include packages().withNameLike("io.gitlab.plunts.gradle.plantuml.examples.app.*")
+    include fields().of(packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app.entity")).thatHaveAccessors()
+    include fields().annotatedWith("jdk.jfr.Description")
+    exclude packages().outsideOfProject()
+    exclude packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app.foobar").recursive()
+    exclude classes().annotatedWith("java.lang.annotation.Retention")
+    exclude fields().thatAreStatic() // note how this does NOT affect enum constants
+    exclude methods().thatAreAccessors() // note that this does NOT exclude VehicleService.getVehicles
+    include methods().of("io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService").thatAreProtected().orPackagePrivate().andNotStatic()
+    exclude classes().withParentClass()
+    writeTo file('diagrams/filtered_members.puml')
+  }
+  classDiagram {
+    name "Override relations"
+    include packages("io.gitlab.plunts.gradle.plantuml.examples.app.entity")
+    exclude fields()
+    exclude enumValues()
+    exclude methods()
+    exclude classes().withName("io.gitlab.plunts.gradle.plantuml.examples.app.entity.TestAnnotation")
+    // override complete relation
+    override extension().from("*").to("*.AbstractEntity").with("<.u.x")
+    // or just parts
+    override association().from("*.Vehicle").to("*.SteeringWheel")
+      .withSourceArrow("x").withSourceMultiplicity("a")
+      .withTargetArrow(">").withTargetMultiplicity("b")
+      .withLabel("wheel")
+    override association().from("*.Vehicle").to("*.Passenger").withLineCharacter(".").withStyle("left")
+    // add an additional relation that is for some reason not discovered automatically
+    add association().from("*.Trip").to("*.Truck").withLineCharacter(".")
+    // remove a relation from the diagram (i.e. not just styled "[hidden]", but completely)
+    remove association().from("*.Tire").to("*.Vehicle")
+    writeTo file('diagrams/relation_override.puml')
+  }
+  classDiagram {
+    name "Write To Markdown"
+    include classes("io.gitlab.plunts.gradle.plantuml.examples.app.entity.Vehicle")
+    include subclasses()
+    insertInto file('README.md')
+  }
+  classDiagram {
+    name "Styled output"
+    // All properties are also available (and most likely more suited) in the defaults
+    // For more information see official PlantUML documentation: https://plantuml.com/en/class-diagram
+    style {
+      include "default_style.puml"
+      useIntermediatePackages()
+      theme "sketchy"
+      define "MyPackageColor #ff0000"
+      define "MyControllerColor", "#00ff00"
+      skinparam "packageStyle", "rectangle"
+      hide "empty members"
+      show "stereotype"
+      addStyle("#0000ff").to(packages().withName("io.gitlab.plunts.gradle.plantuml.examples"))
+      addStyle("MyPackageColor").to(packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app"))
+      addStyle("MyControllerColor").to(classes().withNameLike("io.gitlab.plunts.gradle.plantuml.examples.app.*"))
+    }
+
+    note("Test").bottomOf(packages().withName("io"))
+    include packages().withName("io.gitlab.plunts.gradle.plantuml.examples.app").nonRecursive()
+    writeTo file('diagrams/styled_output.puml')
+  }
+  classDiagram {
+    name "Group classes together"
+    include classes("io.gitlab.plunts.gradle.plantuml.examples.app.entity.V*")
+    include classes("*.ParkingSlot")
+    include fields()
+    together {
+      // this class is NOT included automatically
+      classes("io.gitlab.plunts.gradle.plantuml.examples.app.entity.V*")
+      // this class is excluded from the together block, but will still appear in the diagram because it is included below
+      except classes("*.VehicleState")
+    }
+    together {
+      // using includes in the together block automatically adds them to the diagram as well
+      include classes("*.Car")
+      include classes().withNameLike("*.Truck")
+      // you could use exclude as well (this example doesn't do anything, because no include matches it to begin with)
+      exclude classes("*.AbstractEntity")
+    }
+    note("Automatically\nincluded").leftOf(classes("*.Car"))
+    writeTo file('diagrams/together.puml')
+  }
+
+  packageDiagram {
+    name "Packages only"
+    include packages().withName('io.gitlab.plunts.gradle.plantuml.examples').maxDepth(3)
+    writeTo file('diagrams/packages.puml')
+    renderTo file('diagrams/packages.png')
+    insertInto file('README.md')
+  }
+
+}

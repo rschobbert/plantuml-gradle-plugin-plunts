@@ -1,0 +1,36 @@
+@startuml Visualise private members
+!pragma useIntermediatePackages false
+
+class "VehicleController" as io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController {
+  -VehicleService service
+  __
+  +List<VehicleDto> listVehicles(int, int)
+}
+note left of io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController::service
+This is an important field
+end note
+class "VehicleService" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService {
+  -GarageHelper garageHelper
+  __
+  +List<Vehicle> getVehicles(int, int)
+  ~List<Vehicle> getVehicelsNoChecks(Integer, Integer)
+  -String buildQuery()
+}
+note right of io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService::buildQuery
+This is an important method
+end note
+class "VehicleService$QueryBuilder" as io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService$QueryBuilder<T extends Vehicle> {
+  -T entity
+  -String[] fields
+  __
+  +String build()
+  +T getEntity()
+  +void setEntity(T)
+  +String[] getFields()
+  +void setFields(String[])
+}
+class "GarageHelper" as io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper {
+}
+io.gitlab.plunts.gradle.plantuml.examples.app.controller.VehicleController --> io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService
+io.gitlab.plunts.gradle.plantuml.examples.app.service.VehicleService --> io.gitlab.plunts.gradle.plantuml.examples.app.service.internal.GarageHelper
+@enduml
