@@ -1,0 +1,137 @@
+plugins {
+  id "io.gitlab.plunts.plantuml" version "${version}"
+}
+
+description = 'generate class diagrams of the plugin itself'
+
+
+ext {
+    pluginMainPackage = 'io.gitlab.plunts.gradle.plantuml.plugin'
+    diagramOutput = 'build/diagrams'
+    renderFormats = ['svg']
+    createdSvgFiles = []
+}
+
+configurations {
+  plantuml
+}
+
+dependencies {
+  plantuml  "net.sourceforge.plantuml:plantuml-mit:1.2026.2"
+}
+
+tasks.register('generatePluginDiagrams') {
+    dependsOn generateClassDiagrams
+    
+    doLast {
+        
+    }
+}
+
+classDiagrams {
+  renderClasspath  configurations.plantuml
+  defaults {
+    style {
+//      directionLR()
+      skinparam "linetype", "ortho"
+    }
+  }
+  
+  diagram {
+    def pkg = 'io.gitlab.plunts.gradle.plantuml.plugin.matcher'
+    name "Package $pkg"
+    include packages().withName(pkg)
+    
+    // without any extra configuration plantuml places the ClassGraphConfiguration
+    // in an unfavorable location. By adding a different direction to the relation
+    // we can force a different layout. In this case 'right' on this relation gave
+    // the desired result.
+    // You can also try setting the direction to 'left' or 'down' and you will see, 
+    // that these do not change the layout. 
+    // (since 'up' is the default, that one doesn't make sense to set explicitely)
+    // Sometimes it is just a matter of trying out...
+    override extension().from("*.PackageMatcher").to("*.ClassGraphConfiguration").withStyle("right")
+    
+    renderFormats.each { renderTo renderFile(pkg, 'overview', it) }
+  }
+  
+  diagram {
+    def pkg = 'io.gitlab.plunts.gradle.plantuml.plugin.relation'
+    name "Package $pkg"
+    include packages().withName(pkg)
+    renderFormats.each { renderTo renderFile(pkg, 'overview', it) }
+  }
+  
+  diagram {
+    def pkg = pluginMainPackage
+    name "Package $pkg"
+    include packages().withName(pkg)
+    
+    exclude packages().withName("io.gitlab.plunts.gradle.plantuml.plugin.relation")
+    exclude packages().withName("io.gitlab.plunts.gradle.plantuml.plugin.matcher")
+    // subpackage 'output' is NOT excluded, since it has no diagram on its own.
+    // It makes more sense to put it with the main package
+    
+    // exclude PlantUmlPlugin and ClassDiagramsExtension, since we will put
+    // them with a more detailed explanation in a separate diagram
+    exclude classes().withNameLike("*.ClassDiagramsExtension")
+    exclude classes().withNameLike("*.PlantUmlPlugin")
+    
+    // exclude these for now (let's see where if and where we will put these):
+    exclude classes().withNameLike("*.PackageDiagramDefaults*Style")
+    exclude classes().withNameLike("*.PackageDiagramDefaults*ElementNote")
+    exclude classes().withNameLike("*.ClassDiagramDefaults?ClassGrouping")
+    
+    exclude classes().withNameLike("*ElementNoteBuilder")
+    exclude classes().withNameLike("*ElementStyleBuilder")
+    exclude classes().withNameLike("*LocalRenderer")
+    exclude classes().withNameLike("*PackageNoteBuilder")
+    exclude classes().withNameLike("*ServerRenderer")
+    exclude classes().withNameLike("*Viewpoint")
+    
+    // the following are just utility classes, which do not need to appear for the 'big picture'
+    exclude classes().withNameLike("*.TaskLogger")
+    exclude classes().withNameLike("*.RegExUtil")
+    
+    exclude fields()
+    exclude methods().thatAreAccessors()
+    
+    add association().from("*.GenerateClassDiagramsTask").to("*.ClassDiagramBuilder").withStyle("left")
+    add association().from("*.GenerateClassDiagramsTask").to("*.PackageDiagramBuilder").withStyle("left")
+    override extension().from("*.PackageDiagram").to("*.PackageDiagramDefaults").withStyle("right")
+    
+    style {
+      addStyle("#pink ##[bold]red").to(classes().withNameLike("*.GenerateClassDiagramsTask"))
+    }
+    
+    // use groovy multiline string combined with 'stripMargin() method (default margin character is '|')
+    // to make the note a little bit more readable right here
+    note("""<size:18><b>PlantUmlPlugin</b> creates <b>ClassDiagramsExtension</b></size>
+           |<size:18>and registers <b>GenerateClassDiagramsTask</b></size>
+           |""".stripMargin())
+    .topOf(classes("*.GenerateClassDiagramsTask"))
+    
+    renderFormats.each { renderTo renderFile(pkg, 'overview', it) }
+  }
+}
+
+//***********************************************************************
+// utility method to create and collect filenames
+// of rendered diagrams, in order to generate an html page
+// for viewing
+// -------------------------------------------------------
+File renderFile(String pkg, String diagramType, String renderFormat) {
+    if ( ! pkg ==~ /${pluginMainPackage}(\..*)?/) {
+        throw new GradleException("plugin package does not match the configure package in ext.pluginMainPackage: '$pluginMainPackage'")
+    }
+    
+    String subpkg = (pkg == pluginMainPackage) ? '' : (pkg - pluginMainPackage)[1..-1] // if it is a subpackage, cut the leading '.'
+    
+    // create a filename based on the method params
+    // if subpackage is empty, we omit the second '-'
+    String filename = "plugin-${subpkg}${subpkg?'-':''}overview.$renderFormat"
+    // add the file to our list
+    createdSvgFiles << file("$diagramOutput/$filename")
+    // return last element of list
+    createdSvgFiles[-1]
+}
