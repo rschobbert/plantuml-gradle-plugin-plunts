@@ -1,4 +1,8 @@
 allprojects {
+    apply plugin: 'eclipse'
+    if (project.name in [ 'examples', 'app', 'dto' ] ) {
+        eclipse.project.name = (rootProject.name + project.path).replaceAll(':', '-')
+    }
 
     group = 'io.gitlab.plunts'
 
