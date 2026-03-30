@@ -5,16 +5,38 @@ pluginManagement {
   }
 }
 
-if (startParameter.taskNames.contains("generatePluginDiagrams")) {
+
+// try to keep new stuff separated from original authors' code
+// to have the least possible impact. Therefore put my own stuff in 
+// separate build scripts and add logic here to
+// call them depending on the tasks
+
+def newTasks = [ 'generatePluginDiagrams' : 'build-plugin-diagrams.gradle',  'delombok' : 'build-delombok.gradle' ]
+
+if ( newTasks.keySet().find { startParameter.taskNames.contains(it) } ) {
+  
+  if (startParameter.taskNames.size() > 1) {
+    throw new GradleException("New tasks $newTasks must be called on their own, i.e. only one task per call allowed. Please remove the other tasks from the commandline.")
+  }
+  
   dependencyResolutionManagement {
       repositories {
           mavenLocal()
           mavenCentral()
       }
   }
-  rootProject.setBuildFileName('build-plugin-diagrams.gradle')
+  
+  rootProject.setBuildFileName( newTasks[(startParameter.taskNames[0])] )
+  
   include ':plugin'
+  
+  if (startParameter.taskNames[0] == "delombok") {
+    include ':examples:dto'
+    include ':examples:app'
+  }
+
 } else {
+  
   include ':plugin'
   include ':examples:dto'
   include ':examples:app'

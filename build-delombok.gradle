@@ -1,0 +1,75 @@
+// although discouraged, use subprojects DSL block to configure dependencies and java plugin
+// for the projects, to make things not too complicated here
+
+subprojects {
+    apply plugin: 'java'
+    dependencies {
+      implementation  gradleApi()
+      implementation  'org.projectlombok:lombok:1.18.40'
+      implementation  'io.github.classgraph:classgraph:4.8.184'
+
+      implementation 'org.hibernate:hibernate-annotations:3.5.6-Final'
+      implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
+      testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+      testImplementation 'org.apiguardian:apiguardian-api:1.1.2'  // without, we get the error: "warning: unknown enum-constant org.apiguardian.api.API.Status.STABLE"
+      testImplementation 'org.hamcrest:hamcrest:2.2'
+      testImplementation 'org.mockito:mockito-all:1.10.19'
+      testImplementation 'org.junit-pioneer:junit-pioneer:1.9.1'
+      testImplementation 'com.squareup.okhttp3:mockwebserver:4.10.0'
+    }
+}
+
+abstract class DelombokTask extends DefaultTask {
+    
+    // to make this task work with ConfigurationCache, we need to
+    // inject and use ExecOperations and set the delombokClasspath 
+    // from 'outside'
+    
+    private ExecOperations execOperations
+    
+    @InputFiles @Classpath
+    abstract ConfigurableFileCollection getDelombokClasspath()
+
+    @javax.inject.Inject
+    DelombokTask(ExecOperations execOperations) {
+        this.execOperations = execOperations
+    }
+    
+    @TaskAction
+    void runDelombok() {
+        execOperations.javaexec {
+            classpath = delombokClasspath
+            mainClass = 'lombok.launch.Main'
+            args  'delombok', 'src', '-d', 'src-delomboked'
+        }
+        
+    }
+}
+
+project(':plugin') {
+    tasks.register('delombok', DelombokTask) {
+        delombokClasspath = sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath + sourceSets.test.runtimeClasspath
+    }
+}
+
+project(':examples:dto') {
+    tasks.register('delombok', DelombokTask) {
+        delombokClasspath = sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath + sourceSets.test.runtimeClasspath
+    }
+}
+
+project(':examples:app') {
+    dependencies {
+      implementation project(":examples:dto")
+    }
+    tasks.register('delombok', DelombokTask) {
+        dependsOn ':examples:dto:delombok'
+        delombokClasspath = sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath + sourceSets.test.runtimeClasspath
+    }
+}
+
+tasks.register('delombok') {
+    dependsOn ':plugin:delombok', ':examples:dto:delombok', ':examples:app:delombok'
+}
+
