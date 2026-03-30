@@ -138,4 +138,9 @@ public class RelationOverride implements Serializable {
     return Optional.empty();
   }
 
+  @Override
+  public String toString() {
+    return "RelationOverride [from=" + from + ", to=" + to + "]";
+  }
+
 }

@@ -17,6 +17,7 @@ import io.gitlab.plunts.gradle.plantuml.plugin.output.AbstractDiagramWriter;
 import io.gitlab.plunts.gradle.plantuml.plugin.output.DefaultDiagramWriter;
 import io.gitlab.plunts.gradle.plantuml.plugin.output.InsertingDiagramWriter;
 import io.gitlab.plunts.gradle.plantuml.plugin.output.RenderingDiagramWriter;
+import io.gitlab.plunts.gradle.plantuml.plugin.relation.PackageRelation;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.RelationOverride;
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class ClassDiagram extends ClassDiagramDefaults implements Diagram {
   private String name;
   private final List<AbstractDiagramWriter> writers = new ArrayList<>();
   private final List<RelationOverride> additionalRelations = new ArrayList<>();
+  private final List<PackageRelation> packageRelations = new ArrayList<>();
   private final List<RelationOverride> removedRelations = new ArrayList<>();
 
   ClassDiagram(ClassDiagramDefaults defaults) {
@@ -71,8 +73,16 @@ public class ClassDiagram extends ClassDiagramDefaults implements Diagram {
     this.additionalRelations.add(relation);
   }
 
+  public void add(PackageRelation relation) {
+    this.packageRelations.add(relation);
+  }
+
   public void remove(RelationOverride relation) {
     this.removedRelations.add(relation);
   }
 
+  @Override
+  public String toString() {
+    return "ClassDiagram[" + name + "]";
+  }
 }

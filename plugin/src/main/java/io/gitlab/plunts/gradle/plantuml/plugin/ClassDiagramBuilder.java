@@ -20,13 +20,15 @@ import io.github.classgraph.ClassRefTypeSignature;
 import io.github.classgraph.FieldInfo;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.MethodParameterInfo;
+import io.github.classgraph.PackageInfo;
 import io.github.classgraph.TypeArgument;
 import io.github.classgraph.TypeParameter;
 import io.github.classgraph.TypeSignature;
 import io.github.classgraph.TypeVariableSignature;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.AbstractClassRelation;
-import io.gitlab.plunts.gradle.plantuml.plugin.relation.GenericRelation;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.ExtensionRelation;
+import io.gitlab.plunts.gradle.plantuml.plugin.relation.GenericRelation;
+import io.gitlab.plunts.gradle.plantuml.plugin.relation.PackageRelation;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.RelationOverride;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -57,6 +59,7 @@ class ClassDiagramBuilder extends DiagramBuilder<ClassDiagram> {
     writeClassDefinitions(sb);
     writePackageNotes(sb);
     writeClassRelations(sb);
+    writePackageRelations(sb);
     sb.append("@enduml\n");
     return sb.toString();
   }
@@ -248,6 +251,46 @@ class ClassDiagramBuilder extends DiagramBuilder<ClassDiagram> {
     target.append(" ").append(to.getName());
     override.writeLabel(relation, target);
     target.append("\n");
+  }
+
+  private void writePackageRelations(StringBuilder target) {
+    List<PackageRelation> packageRelations = diagram.getPackageRelations();
+    if (packageRelations.size() > 0) {
+      for (PackageRelation packageRelation : packageRelations) {
+        writePackageRelation(packageRelation, target);
+      }
+    }
+  }
+
+  private void writePackageRelation(PackageRelation packageRelation, StringBuilder target) {
+    for (ClassInfo fromClass : classes) {
+      if (writePackageRelation(packageRelation, fromClass.getPackageInfo(), target)) {
+          return; // abort loop, as soon as package relation was written
+      }
+    }
+  }
+
+  private boolean writePackageRelation(PackageRelation packageRelation, PackageInfo fromPackage, StringBuilder target) {
+    if (packageRelation.isFrom(fromPackage)) {
+      // let's look for the other side(s) of this relation...
+      for (ClassInfo to : classes) {
+        PackageInfo toPackage = to.getPackageInfo();
+        if (packageRelation.isTo(toPackage)) {
+          writePackageRelationNoChecks(fromPackage, toPackage, packageRelation, target);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  private void writePackageRelationNoChecks(PackageInfo from, PackageInfo to, PackageRelation packageRelation, StringBuilder target) {
+    target.append(from.getName()).append(" ");
+    packageRelation.writeArrow(target);
+    target.append(" ").append(to.getName());
+    packageRelation.writeLabel(target);
+    target.append("\n");
+    packageRelation.setAlreadyWritten(true);
   }
 
   private String getTypePrefix(ClassInfo classInfo) {

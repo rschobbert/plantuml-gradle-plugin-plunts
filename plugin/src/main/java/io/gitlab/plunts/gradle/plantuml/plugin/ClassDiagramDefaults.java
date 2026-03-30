@@ -23,6 +23,7 @@ import io.gitlab.plunts.gradle.plantuml.plugin.matcher.IncludeExclude;
 import io.gitlab.plunts.gradle.plantuml.plugin.matcher.MethodMatcher;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.AssociativeRelation;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.ExtensionRelation;
+import io.gitlab.plunts.gradle.plantuml.plugin.relation.PackageRelation;
 import io.gitlab.plunts.gradle.plantuml.plugin.relation.RelationOverride;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -113,6 +114,10 @@ public class ClassDiagramDefaults extends PackageDiagramDefaults {
 
   public RelationOverride extension() {
     return new RelationOverride(ExtensionRelation.class);
+  }
+
+  public PackageRelation packageRelation() {
+    return new PackageRelation();
   }
 
   public void together(Action<ClassGrouping> action) {
