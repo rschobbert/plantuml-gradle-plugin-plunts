@@ -1,3 +1,7 @@
+// This build file gets called, by calling gradle build with 'delombok' task.
+// Selecting appropriate buildfile is done in settings.gradle
+
+
 // although discouraged, use subprojects DSL block to configure dependencies and java plugin
 // for the projects, to make things not too complicated here
 

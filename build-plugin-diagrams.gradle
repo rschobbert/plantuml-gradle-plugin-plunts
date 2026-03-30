@@ -1,3 +1,7 @@
+// This build file gets called, by calling gradle build with 'generatePluginDiagrams' task.
+// Selecting appropriate buildfile is done in settings.gradle
+
+
 plugins {
   id "io.gitlab.plunts.plantuml" version "${version}"
 }
