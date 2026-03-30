@@ -1,4 +1,5 @@
 @startuml Styled output
+left to right direction
 !include default_style.puml
 !define MyPackageColor #ff0000
 !define MyControllerColor #00ff00

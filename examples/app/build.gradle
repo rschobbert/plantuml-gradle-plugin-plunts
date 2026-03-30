@@ -125,6 +125,7 @@ classDiagrams {
     // All properties are also available (and most likely more suited) in the defaults
     // For more information see official PlantUML documentation: https://plantuml.com/en/class-diagram
     style {
+      directionLR()
       include "default_style.puml"
       useIntermediatePackages()
       theme "sketchy"

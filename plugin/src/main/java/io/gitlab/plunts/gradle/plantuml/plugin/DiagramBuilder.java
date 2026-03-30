@@ -216,6 +216,9 @@ abstract class DiagramBuilder<T extends Diagram> {
   abstract String build();
 
   protected void writeStyle(StringBuilder sb) {
+    if (diagram.getStyle().isDirectionLR()) {
+      sb.append("left to right direction\n");
+    }
     for (String include : diagram.getStyle().getIncludes()) {
       sb.append("!include ").append(include).append('\n');
     }

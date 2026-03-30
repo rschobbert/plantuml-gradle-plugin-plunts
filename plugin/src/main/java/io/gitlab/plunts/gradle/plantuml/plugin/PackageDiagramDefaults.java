@@ -200,6 +200,7 @@ public class PackageDiagramDefaults implements Serializable {
     private final List<String> defines = new ArrayList<>();
     private Boolean useIntermediatePackages = null;
     private Boolean showPackages = null;
+    private Boolean isDirectionLR = null;
     private String theme;
     private final Map<String, String> skinparams = new LinkedHashMap<>();
     private final Map<String, Boolean> show = new LinkedHashMap<>();
@@ -212,6 +213,10 @@ public class PackageDiagramDefaults implements Serializable {
 
     public void useIntermediatePackages() {
       useIntermediatePackages = Boolean.TRUE;
+    }
+    
+    public void directionLR() {
+      isDirectionLR = Boolean.TRUE;
     }
 
     public void define(String def) {
@@ -262,6 +267,16 @@ public class PackageDiagramDefaults implements Serializable {
       }
       copy.addAll(defines);
       return copy;
+    }
+
+    boolean isDirectionLR() {
+      if (this.isDirectionLR != null) {
+        return this.isDirectionLR;
+      } else if (inheritDefaults && defaults != null) {
+        return defaults.style.isDirectionLR();
+      } else {
+        return false;
+      }
     }
 
     public boolean isUseIntermediatePackages() {
