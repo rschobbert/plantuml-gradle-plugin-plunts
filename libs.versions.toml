@@ -1,0 +1,70 @@
+[versions]
+
+lombok          = '1.18.40'
+classgraph      = '4.8.184'
+hibernate       = '3.5.6-Final'
+validationApi   = '3.0.2'
+junit           = '5.9.1'
+apiguardian     = '1.1.2'
+hamcrest        = '2.2'
+mockito         = '1.10.19'
+junitPioneer    = '1.9.1'
+mockwebserver   = '4.10.0'
+imageComparison = '4.4.0'
+plantuml        = '1.2023.10'
+fop             = '2.9'
+batik           = '1.17'
+
+# plugin versions:
+gradlePublish   = '1.1.0'
+sonarqube       = '4.3.0.3225'
+
+
+# ========== libraries ====================================================================
+
+[libraries]
+
+lombok                = { module = "org.projectlombok:lombok"                  , version.ref = "lombok"         }
+classgraph            = { module = "io.github.classgraph:classgraph"           , version.ref = "classgraph"     }
+hibernate-annotations = { module = "org.hibernate:hibernate-annotations"       , version.ref = "hibernate"      }
+validation-api        = { module = "jakarta.validation:jakarta.validation-api" , version.ref = "validationApi"  }
+junit-jupiter         = { module = "org.junit.jupiter:junit-jupiter"           , version.ref = "junit"          }
+junit-launcher        = { module = "org.junit.platform:junit-platform-launcher"                                 }
+hamcrest              = { module = "org.hamcrest:hamcrest"                     , version.ref = "hamcrest"       }
+mockito-all           = { module = "org.mockito:mockito-all"                   , version.ref = "mockito"        }
+junit-pioneer         = { module = "org.junit-pioneer:junit-pioneer"           , version.ref = "junitPioneer"   }
+mockwebserver         = { module = "com.squareup.okhttp3:mockwebserver"        , version.ref = "mockwebserver"  }
+image-comparison      = { module = "com.github.romankh3:image-comparison"      , version.ref = "imageComparison"}
+plantuml              = { module = "net.sourceforge.plantuml:plantuml"         , version.ref = "plantuml"       }
+fop                   = { module = "org.apache.xmlgraphics:fop"                , version.ref = "fop"            }
+batik-all             = { module = "org.apache.xmlgraphics:batik-all"          , version.ref = "batik"          }
+
+
+# ========== bundles ======================================================================
+
+[bundles]
+
+plugin-tstimpl = [ "junit-jupiter", "hamcrest", "mockito-all", "junit-pioneer", "mockwebserver", "image-comparison" ]
+plugin-rtonly  = [ "plantuml", "fop", "batik-all" ]
+dto-plantuml   = [ "plantuml", "fop", "batik-all" ]
+app-impl       = [ "hibernate-annotations", "validation-api" ]
+
+
+# ========== plugins ======================================================================
+
+[plugins]
+gradlePublish  = { id = "com.gradle.plugin-publish", version.ref = "gradlePublish" }
+sonarqube      = { id = "org.sonarqube"            , version.ref = "sonarqube"     }
+
+# do not define the version of the io.gitlab.plunts.plantuml plugin here,
+# because of the special handling of the version through gradle.properties.
+# One possibility would be to define the version catalog programmatically
+# in settings.gradle and overwrite the version there, or use a non-standard
+# place for the libs.versions.toml file (e.g. in the root project directly)
+# then we can load that in settings.gradle and overwrite the version.
+# Maybe it is also possible to overwrite the version when using the default place
+# of the toml file, but haven't tried yet... On the other hand, things work out
+# like it is now ( by defining the version when applying the plugin to app/dto
+# example project).
+#plantuml      = { id = "io.gitlab.plunts.plantuml", version.ref = "plantumlPlugin"}
+

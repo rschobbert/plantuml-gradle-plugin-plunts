@@ -1,0 +1,161 @@
+// This is an alternative buildfile, which consists only of this one buildscript.
+// No other buildfiles from the subdirectories are used.
+// This buildfile is automatically selected, if source directories have
+// been delomboked (e.g. if 'delombok' task has been called some time before), 
+// and therefore the source directories 'src-delomboked' are found.
+// Switching is done in settings.gradle.
+
+plugins {
+    // define the plugins, but don't apply them yet. That way we can
+    // apply them selectively per subproject
+    alias(libs.plugins.gradlePublish)    apply false
+    alias(libs.plugins.sonarqube)        apply false
+    id "io.gitlab.plunts.plantuml"       apply false  version "${version}"
+}
+
+allprojects {
+    // apply eclipse plugin here, to be able to set the eclipse project name
+    // below. We only want to change the eclipse project name, not the gradle 
+    // project name.
+    // eclipse project names will be:
+    // * plantuml-gradle-plugin-root
+    // * plantuml-gradle-plugin
+    // * plantuml-gradle-plugin-examples
+    // * plantuml-gradle-plugin-examples-app
+    // * plantuml-gradle-plugin-examples-dto
+    // That way, the eclipse projects won't be scattered around.
+    apply plugin: 'eclipse'
+    
+    if (project.name in [ 'examples', 'app', 'dto' ] ) {
+        eclipse.project.name = (rootProject.name + project.path).replaceAll(':', '-')
+    }
+    if (project.name in [ 'plantuml-gradle-plugin', 'app', 'dto' ] ) {
+        apply plugin: 'java'
+        
+        sourceSets { // if delomboked sources have been generated, use these in the sourcesets
+            main.java.srcDirs = [ file('src-delomboked').isDirectory() ? 'src-delomboked/main/java' : 'src/main/java' ]
+            test.java.srcDirs = [ file('src-delomboked').isDirectory() ? 'src-delomboked/test/java' : 'src/test/java' ]
+        }
+    }
+
+    group = 'io.gitlab.plunts'
+    description = (name == 'plantuml-gradle-plugin') ? 'plugin' : name
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+
+project(':plantuml-gradle-plugin') {
+    apply plugin: 'com.gradle.plugin-publish'
+    apply plugin: 'org.sonarqube'
+    apply plugin: 'jacoco'
+    
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+    
+    dependencies {
+        compileOnly          libs.lombok
+        annotationProcessor  libs.lombok
+        implementation       libs.classgraph
+        
+        testImplementation   libs.bundles.plugin.tstimpl
+        testRuntimeOnly      libs.bundles.plugin.tstimpl
+    }
+    
+    tasks.withType(JavaCompile) {
+        configure(options) {
+            options.release = 21
+            options.compilerArgs << '-Xlint:unchecked' << '-Werror'
+        }
+    }
+    
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+    
+    test {
+        useJUnitPlatform()
+        jvmArgs '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED'
+        jvmArgs '--add-opens', 'java.base/java.nio.file.spi=ALL-UNNAMED'
+    }
+    
+    jacocoTestReport {
+        dependsOn compileJava, processResources // suppress warnings
+        dependsOn test // tests are required to run before generating the report
+        reports {
+            csv.required = true
+            xml.required = true
+        }
+        
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: ["**/PlantUmlPlugin.class"])
+            }))
+        }
+    }
+    
+    check {
+        dependsOn jacocoTestReport
+    }
+    
+    sonarqube {
+        properties {
+            property "sonar.projectKey", "Plunts_plantuml-gradle-plugin"
+            property "sonar.projectName", "plantuml-gradle-plugin"
+            property "sonar.organization", "plunts"
+            property "sonar.exclusions", "**/RegExUtil.java"
+            property "sonar.coverage.exclusions", "**/PlantUmlPlugin.java,**/RegExUtil.java"
+        }
+    }
+    
+    gradlePlugin {
+        website = 'https://gitlab.com/Plunts/plantuml-gradle-plugin'
+        vcsUrl = 'https://gitlab.com/Plunts/plantuml-gradle-plugin'
+        
+        plugins {
+            plantUmlPlugin {
+                id = 'io.gitlab.plunts.plantuml'
+                displayName = 'PlantUML Generator'
+                description = 'Gradle plugin to build PlantUML diagrams from code (for living and up-to-date documentation)'
+                implementationClass = 'io.gitlab.plunts.gradle.plantuml.plugin.PlantUmlPlugin'
+                tags.set([
+                    'plantuml',
+                    'plantuml-diagrams',
+                    'plantuml-generator',
+                    'living-documentation'
+                ])
+            }
+        }
+    }
+}
+
+
+project(':examples:dto') {
+    apply plugin: 'io.gitlab.plunts.plantuml'
+
+    configurations {
+        plantuml // special configuration for local rendering
+    }
+    
+    dependencies {
+        plantuml             libs.bundles.dto.plantuml
+        compileOnly          libs.lombok
+        annotationProcessor  libs.lombok
+    }
+}
+
+
+project(':examples:app') {
+    apply plugin: 'io.gitlab.plunts.plantuml'
+    
+    dependencies {
+        compileOnly          libs.lombok
+        annotationProcessor  libs.lombok
+        implementation       libs.bundles.app.impl
+    }
+}
+

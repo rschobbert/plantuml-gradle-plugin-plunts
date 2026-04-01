@@ -15,6 +15,14 @@ def newTasks = [ 'generatePluginDiagrams' : 'build-plugin-diagrams.gradle',  'de
 
 if ( newTasks.keySet().find { startParameter.taskNames.contains(it) } ) {
   
+  // this code block is only executed, if one of the new tasks are used
+  // on the commandline:
+  //
+  // './gradlew generatePluginDiagrams'
+  // or
+  // './gradlew delombok'
+  // 
+  
   if (startParameter.taskNames.size() > 1) {
     throw new GradleException("New tasks $newTasks must be called on their own, i.e. only one task per call allowed. Please remove the other tasks from the commandline.")
   }
@@ -34,13 +42,34 @@ if ( newTasks.keySet().find { startParameter.taskNames.contains(it) } ) {
     include ':examples:dto'
     include ':examples:app'
   }
-
 } else {
+    include ':plugin'
+    include ':examples:dto'
+    include ':examples:app'
   
-  include ':plugin'
-  include ':examples:dto'
-  include ':examples:app'
-
-  rootProject.name = 'plantuml-gradle-plugin-root'
-  project(":plugin").name = "plantuml-gradle-plugin"
+    rootProject.name = 'plantuml-gradle-plugin-root'
+    project(":plugin").name = "plantuml-gradle-plugin"
+    
+    // if 'plugin/src-delomboked' dir exists, use the 'build-alternative.gradle' buildfile
+    // otherwise the standard buildfile 'build.gradle' is used
+    
+    if (new File( project(':plantuml-gradle-plugin').projectDir, 'src-delomboked' ).isDirectory()) {
+        rootProject.setBuildFileName( 'build-alternative.gradle' )
+        
+        // currently the gradle Version Catalog has been placed directly in the root project dir
+        // to prevent automatic loading by gradle 
+        // (a version catalog file 'gradle/libs.versions.toml' is loaded automatically)
+        // Just to not influence the original build. Maybe the plugin owner agrees to
+        // change the build to use version catalogs, then we can move the file to 
+        // the 'gradle' folder and delete this block here.
+        // (version catalogs were introduced as a feature preview in gradle 7.0 and 
+        // is stable since gradle 7.4)
+        dependencyResolutionManagement {
+            versionCatalogs {
+                libs {
+                    from(files("libs.versions.toml"))
+                }
+            }
+        }
+    }
 }
